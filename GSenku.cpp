@@ -1,12 +1,13 @@
-#include "GSenku.hpp"
-#include <iostream>
-#include <fstream>
-#include <thread>
-#include <chrono>
-#include <stack>
+#include "GSenku.hpp" 
+#include <iostream> //iostream
+#include <cstdlib> //cerr
+#include <fstream> //fstream
+#include <string> //string
+#include <chrono> //crono
+#include <thread> //retardo en vez de time.h más sencillo
 
 using namespace std;
-
+// stack pila no es necesario porque no se usa, se usa la del sistema directamente
 // Implementa inicializarTablero
 bool inicializarTablero(const string nombreFichero, tpTablero &tablero) {
     ifstream archivo(nombreFichero);
@@ -87,12 +88,12 @@ bool esMovimientoValido(const tpTablero &tablero, const tpMovimientosValidos &mo
     int dx = mov.destino.x - mov.origen.x;
     int dy = mov.destino.y - mov.origen.y;
 
-    // Asegurarse de que el movimiento está dentro de los límites
+    // Asegurarse de que el movimiento está dentro de los límites establecidos
     if (mov.destino.x < 0 || mov.destino.x >= tablero.nfils || mov.destino.y < 0 || mov.destino.y >= tablero.ncols) {
         return false;
     }
 
-    // Verificar si las celdas origen, destino y la intermedia cumplen las condiciones
+    // Verificar si las celdas origen, destino y la intermedia cumplen las condiciones de movimiento
     int interX = mov.origen.x + dx / 2;
     int interY = mov.origen.y + dy / 2;
 
@@ -105,7 +106,7 @@ bool esMovimientoValido(const tpTablero &tablero, const tpMovimientosValidos &mo
     return false;
 }
 
-// Función auxiliar para realizar un movimiento
+// Función auxiliar para realizar un movimiento 
 void realizarMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov) {
     int dx = mov.destino.x - mov.origen.x;
     int dy = mov.destino.y - mov.origen.y;
@@ -118,7 +119,7 @@ void realizarMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov) {
     tablero.matriz[interX][interY] = VACIA;
 }
 
-// Función auxiliar para deshacer un movimiento
+// Función auxiliar para deshacer un movimiento 
 void deshacerMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov) {
     int dx = mov.destino.x - mov.origen.x;
     int dy = mov.destino.y - mov.origen.y;
@@ -131,7 +132,9 @@ void deshacerMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov) {
     tablero.matriz[interX][interY] = OCUPADA;
 }
 
-// Implementa buscaSolucion
+// Algoritmo de busqueda recursiva con backtracking 
+// Pre: tablero contiene el estado inicial del que se parte para la búsqueda
+// Post: Se ha buscado una solución al problema y se ha devuelto el resultado
 int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tpListaMovimientos &solucionParcial, const int retardo) {
     bool hayMovimientos = false;
 
@@ -166,6 +169,7 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
 
     if (!hayMovimientos) {
         int piezasRestantes = 0;
+        //bucle para contar las piezas restantes
         for (int i = 0; i < tablero.nfils; ++i) {
             for (int j = 0; j < tablero.ncols; ++j) {
                 if (tablero.matriz[i][j] == OCUPADA) {
@@ -173,7 +177,12 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
                 }
             }
         }
-        return (piezasRestantes == 1) ? 1 : -1;
+        // Si solo queda una pieza, hemos encontrado una solución return 1
+        if (piezasRestantes == 1) {
+            return 1; // Solución encontrada
+        } else {
+            return -1; // No hay solución
+        }
     }
 
     return -1;
