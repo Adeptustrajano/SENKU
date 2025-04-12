@@ -1,13 +1,13 @@
-#include "GSenku.hpp" 
-#include <iostream> //iostream
-#include <cstdlib> //cerr
-#include <fstream> //fstream
-#include <string> //string
-#include <chrono> //crono
-#include <thread> //retardo en vez de time.h más sencillo
+#include "GSenku.hpp"
+#include <iostream> // iostream
+#include <cstdlib>  // cerr
+#include <fstream>  // fstream
+#include <string>   // string
+#include <chrono>   // chrono
+#include <thread>   // thread para pausa
 
 using namespace std;
-// stack pila no es necesario porque no se usa, se usa la del sistema directamente
+
 // Implementa inicializarTablero
 bool inicializarTablero(const string nombreFichero, tpTablero &tablero) {
     ifstream archivo(nombreFichero);
@@ -17,6 +17,14 @@ bool inicializarTablero(const string nombreFichero, tpTablero &tablero) {
     }
 
     archivo >> tablero.nfils >> tablero.ncols;
+
+    // Inicializamos la matriz 
+    for (int i = 0; i < MAXDIM; ++i) {
+        for (int j = 0; j < MAXDIM; ++j) {
+            tablero.matriz[i][j] = NO_USADA; // Inicializamos todo como NO_USADA
+        }
+    }
+    // Leemos el estado del tablero desde el fichero
     for (int i = 0; i < tablero.nfils; ++i) {
         for (int j = 0; j < tablero.ncols; ++j) {
             char estado;
@@ -54,8 +62,11 @@ bool inicializarMovimientosValidos(const string nombreFichero, tpMovimientosVali
         for (int j = 0; j < 3; ++j) {
             char c;
             archivo >> c;
-            if (i == 1 && j == 1) continue; // Celda central no se usa
-            movimientos.validos[i * 3 + j] = (c == '+');
+    
+            // Evitar la celda central
+            if (i != 1 || j != 1) { // si no es la celda central:
+                movimientos.validos[i * 3 + j] = (c == '+');
+            }
         }
     }
 
@@ -84,7 +95,7 @@ void mostrarTablero(const tpTablero &tablero) {
 }
 
 // Función auxiliar para verificar si un movimiento es válido
-bool esMovimientoValido(const tpTablero &tablero, const tpMovimientosValidos &movValidos, const tpMovimientoPieza &mov) {
+bool esMovimientoValido(const tpTablero &tablero, const tpMovimientoPieza &mov) {
     int dx = mov.destino.x - mov.origen.x;
     int dy = mov.destino.y - mov.origen.y;
 
@@ -106,7 +117,7 @@ bool esMovimientoValido(const tpTablero &tablero, const tpMovimientosValidos &mo
     return false;
 }
 
-// Función auxiliar para realizar un movimiento 
+// Función auxiliar para realizar un movimiento
 void realizarMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov) {
     int dx = mov.destino.x - mov.origen.x;
     int dy = mov.destino.y - mov.origen.y;
@@ -119,7 +130,7 @@ void realizarMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov) {
     tablero.matriz[interX][interY] = VACIA;
 }
 
-// Función auxiliar para deshacer un movimiento 
+// Función auxiliar para deshacer un movimiento
 void deshacerMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov) {
     int dx = mov.destino.x - mov.origen.x;
     int dy = mov.destino.y - mov.origen.y;
@@ -132,9 +143,7 @@ void deshacerMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov) {
     tablero.matriz[interX][interY] = OCUPADA;
 }
 
-// Algoritmo de busqueda recursiva con backtracking 
-// Pre: tablero contiene el estado inicial del que se parte para la búsqueda
-// Post: Se ha buscado una solución al problema y se ha devuelto el resultado
+// Algoritmo de búsqueda recursiva con backtracking
 int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tpListaMovimientos &solucionParcial, const int retardo) {
     bool hayMovimientos = false;
 
@@ -144,7 +153,8 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
                 for (int dx = -2; dx <= 2; dx += 2) {
                     for (int dy = -2; dy <= 2; dy += 2) {
                         tpMovimientoPieza mov = {{i, j}, {i + dx, j + dy}};
-                        if (esMovimientoValido(tablero, movValidos, mov)) {
+                        // Corrección: esMovimientoValido ahora solo requiere tablero y mov
+                        if (esMovimientoValido(tablero, mov)) {
                             hayMovimientos = true;
                             realizarMovimiento(tablero, mov);
                             solucionParcial.movs[solucionParcial.numMovs++] = mov;
@@ -155,7 +165,7 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
                             }
 
                             if (buscaSolucion(tablero, movValidos, solucionParcial, retardo) == 1) {
-                                return 1;
+                                return 1; // Solución encontrada
                             }
 
                             deshacerMovimiento(tablero, mov);
@@ -169,7 +179,6 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
 
     if (!hayMovimientos) {
         int piezasRestantes = 0;
-        //bucle para contar las piezas restantes
         for (int i = 0; i < tablero.nfils; ++i) {
             for (int j = 0; j < tablero.ncols; ++j) {
                 if (tablero.matriz[i][j] == OCUPADA) {
@@ -177,32 +186,28 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
                 }
             }
         }
-        // Si solo queda una pieza, hemos encontrado una solución return 1
-        if (piezasRestantes == 1) {
-            return 1; // Solución encontrada
-        } else {
-            return -1; // No hay solución
-        }
+        return (piezasRestantes == 1) ? 1 : -1; // 1 si hay solución, -1 si no
     }
 
     return -1;
 }
 
 // Implementa escribeListaMovimientos
-void escribeListaMovimientos(string nombreFichero, const tpListaMovimientos &solucion) {
+void escribeListaMovimientos(const string nombreFichero, const tpListaMovimientos &solucion) {
+    if (solucion.numMovs == 0) {
+        cerr << "No se encontró solución. No se generará el fichero." << endl;
+        return;
+    }
+
     ofstream archivo(nombreFichero);
     if (!archivo.is_open()) {
         cerr << "Error: No se pudo abrir el fichero de salida." << endl;
         return;
     }
 
-    if (solucion.numMovs == 0) {
-        archivo << "-1" << endl;
-    } else {
-        for (int i = 0; i < solucion.numMovs; ++i) {
-            archivo << solucion.movs[i].origen.x << " " << solucion.movs[i].origen.y << " "
-                    << solucion.movs[i].destino.x << " " << solucion.movs[i].destino.y << endl;
-        }
+    for (int i = 0; i < solucion.numMovs; ++i) {
+        archivo << solucion.movs[i].origen.x << " " << solucion.movs[i].origen.y << " "
+                << solucion.movs[i].destino.x << " " << solucion.movs[i].destino.y << endl;
     }
 
     archivo.close();
