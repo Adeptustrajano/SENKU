@@ -62,13 +62,14 @@ int main(int argc, char *argv[]) {
     // Mostrar resultados solo si se encontró solución
     if (resultado == 1) {
         cout << "¡Solución encontrada!" << endl;
-
-        // Escribir la solución en el fichero de salida
         escribeListaMovimientos(ficheroSalida, solucion);
         cout << "La solución ha sido escrita en el fichero: " << ficheroSalida << endl;
     } else {
         cout << "No se encontró solución." << endl;
-        cout << "No se generará ningún archivo.txt." << endl;
+        // Generar archivo con -1
+        tpListaMovimientos solucionVacia;
+        solucionVacia.numMovs = 0;
+        escribeListaMovimientos(ficheroSalida, solucionVacia);
     }
 
     return 0;
