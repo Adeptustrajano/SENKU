@@ -167,8 +167,9 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
                             if (buscaSolucion(tablero, movValidos, solucionParcial, retardo) == 1) {
                                 return 1; // Solución encontrada
                             }
-
-                            deshacerMovimiento(tablero, mov);
+                            
+                            //backtracking deshacer movimiento para probar otro
+                            deshacerMovimiento(tablero, mov); 
                             solucionParcial.numMovs--;
                         }
                     }
@@ -186,7 +187,7 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
                 }
             }
         }
-        return (piezasRestantes == 1) ? 1 : -1; // 1 si hay solución, -1 si no
+        return (piezasRestantes == 1) ? 1 : -1; // condicional si es 1 true, sino -1. forma corta del if-else
     }
 
     return -1;
@@ -194,20 +195,19 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
 
 // Implementa escribeListaMovimientos
 void escribeListaMovimientos(const string nombreFichero, const tpListaMovimientos &solucion) {
-    if (solucion.numMovs == 0) {
-        cerr << "No se encontró solución. No se generará el fichero." << endl;
-        return;
-    }
-
     ofstream archivo(nombreFichero);
     if (!archivo.is_open()) {
         cerr << "Error: No se pudo abrir el fichero de salida." << endl;
         return;
     }
 
-    for (int i = 0; i < solucion.numMovs; ++i) {
-        archivo << solucion.movs[i].origen.x << " " << solucion.movs[i].origen.y << " "
-                << solucion.movs[i].destino.x << " " << solucion.movs[i].destino.y << endl;
+    if (solucion.numMovs == 0) {
+        archivo << -1 << endl; // Escribir -1 si no hay solución
+    } else {
+        for (int i = 0; i < solucion.numMovs; ++i) {
+            archivo << solucion.movs[i].origen.x << " " << solucion.movs[i].origen.y << " "
+                    << solucion.movs[i].destino.x << " " << solucion.movs[i].destino.y << endl;
+        }
     }
 
     archivo.close();
