@@ -8,7 +8,7 @@ using namespace std;
 // 1. Fichero de tablero
 // 2. Fichero de movimientos válidos    
 // 3. Retardo en milisegundos
-// 4. Nombre fichero de salida opcional o resultado.txt automatico 
+// 4. Nombre fichero de salida opcional o resultado.txt automático 
 
 // Ejecutable en ubuntu: ./mainGSenku tablero.txt movimientos.txt 100 salida.txt o directamente con el makefile
 // argv[0] = "./mainGSenku"
@@ -17,9 +17,10 @@ using namespace std;
 // argv[3] = "100" //retardo
 // argv[4] = "salida.txt" opcional el último argumento
 
-
 int main(int argc, char *argv[]) {
-    // Verificación de argumentos
+    // Verificación de argumentos de entrada para usuario
+    // argc = 5 si se proporciona el fichero de salida
+    // argc = 4 si no se proporciona el fichero de salida
     if (argc < 4) {
         cerr << "Uso: " << argv[0] << " <ficheroTablero> <ficheroMovimientos> <retardo> [ficheroSalida]" << endl;
         cerr << "Ejemplo: " << argv[0] << " tablero.txt movimientos.txt 100 resultado.txt" << endl;
@@ -33,7 +34,7 @@ int main(int argc, char *argv[]) {
     // Si no se proporciona un fichero de salida en el argumento 5, se usa "resultado.txt" por defecto
     string ficheroSalida = (argc == 5) ? argv[4] : "resultado.txt";
 
-    //struct principales
+    // Struct principales
     tpTablero tablero;
     tpMovimientosValidos movimientosValidos;
     tpListaMovimientos solucion;
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Mostrar el estado inicial del tablero
+    // Mostrar el estado inicial del tablero con MostrarTablero
     cout << "Estado inicial del tablero:" << endl;
     mostrarTablero(tablero);
 
@@ -58,16 +59,17 @@ int main(int argc, char *argv[]) {
     cout << "Buscando solución..." << endl;
     int resultado = buscaSolucion(tablero, movimientosValidos, solucion, retardo);
 
-    // Mostrar resultados
+    // Mostrar resultados solo si se encontró solución
     if (resultado == 1) {
         cout << "¡Solución encontrada!" << endl;
+
+        // Escribir la solución en el fichero de salida
+        escribeListaMovimientos(ficheroSalida, solucion);
+        cout << "La solución ha sido escrita en el fichero: " << ficheroSalida << endl;
     } else {
         cout << "No se encontró solución." << endl;
+        cout << "No se generará ningún archivo.txt." << endl;
     }
-
-    // Escribir la solución en el fichero de salida
-    escribeListaMovimientos(ficheroSalida, solucion);
-    cout << "La solución ha sido escrita en el fichero: " << ficheroSalida << endl;
 
     return 0;
 }
