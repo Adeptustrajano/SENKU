@@ -27,5 +27,5 @@ clean:
 .PHONY: all clean
 
 # si un archivo fuente o cabecera cambia, se recompilarán los archivos afectados.
--include $(DEPS) ~
+-include $(DEPS) 
 # Lista de archivos .d generados automáticamente.
