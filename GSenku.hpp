@@ -1,5 +1,10 @@
+#ifndef GSENKU_HPP
+#define GSENKU_HP
+
 #include <iostream>
 #include <fstream> 
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -94,6 +99,19 @@ bool inicializarMovimientosValidos(const string nombreFichero, tpMovimientosVali
 // Post: Se ha mostrado el tablero por pantalla
 void mostrarTablero(const tpTablero & tablero);
 
+//Pre: Estado actual del tablero, mov contiene el movimiento a comprobar
+//Post: Devuelve true si el movimiento es válido, false en caso contrario
+bool esMovimientoValido(const tpTablero &tablero, const tpMovimientoPieza &mov);
+
+// Pre: Estado actual del tablero, mov contiene el movimiento a realizar
+// Post: Se ha realizado el movimiento en el tablero
+void realizarMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov);
+
+
+// Pre: Estado actual del tablero, mov contiene el movimiento a deshacer
+// Post: Se ha deshecho el movimiento en el tablero
+void deshacerMovimiento(tpTablero &tablero, const tpMovimientoPieza &mov);
+
 // Pre: tablero contiene el estado inicial del que se parte para la búsqueda, 
 //      movimientosValidos contiene los movimientos que están permitidos, 
 //      solucionParcial contiene la solución actual como lista de movimientos, En el tablero se han colocada las n primeras piezas de vEntrada, en la columnas indicadas respectivamente en vSalida
@@ -106,6 +124,8 @@ int buscaSolucion(tpTablero &tablero, const tpMovimientosValidos &movValidos, tp
 // Post: escribe la lista de movimientos en el fichero que se le pasa como argumento siguiendo el 
 //      formato especificado en el guión (si está vacía, se escribe un -1 en el fichero)
 void escribeListaMovimientos (string nombreFichero, const tpListaMovimientos &solucion); 
+
+#endif // GSENKU_HPP
 
 //////////////////////////////////////////////////////////////////////////////
 // Salida con atributos
