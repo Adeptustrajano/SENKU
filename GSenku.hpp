@@ -101,7 +101,7 @@ void mostrarTablero(const tpTablero & tablero);
 
 //Pre: Estado actual del tablero, mov contiene el movimiento a comprobar
 //Post: Devuelve true si el movimiento es válido, false en caso contrario
-bool esMovimientoValido(const tpTablero &tablero, const tpMovimientoPieza &mov);
+bool esMovimientoValido(const tpTablero &tablero, const tpMovimientoPieza &mov, const tpMovimientosValidos &movValidos);
 
 // Pre: Estado actual del tablero, mov contiene el movimiento a realizar
 // Post: Se ha realizado el movimiento en el tablero
